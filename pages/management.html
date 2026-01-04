@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;">
+    <title>الإدارة - منظومة الشكاوى</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            justify-content: center;
+        }
+        
+        .tab-button {
+            padding: 12px 30px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button:hover {
+            color: #667eea;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        /* تنسيق الجداول */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .table-container thead {
+            background: #f8f9fa;
+        }
+
+        .table-container th {
+            padding: 15px 12px;
+            text-align: center;
+            color: #000;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table-container td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .table-container tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .table-container tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        .table-container tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* تنسيق الأزرار في الجدول */
+        .table-container .btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            margin: 0 3px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .table-container .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .table-container .btn-edit:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .table-container .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .table-container .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        /* تنسيق باج عدد الشكاوى */
+        .complaint-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-block;
+            min-width: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .table-container {
+                font-size: 12px;
+            }
+
+            .table-container th,
+            .table-container td {
+                padding: 8px 6px;
+            }
+
+            .table-container .btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-secondary logout-btn" id="logoutBtn">تسجيل الخروج</button>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="complaints.html">تقديم شكوى</a></li>
+                <li><a href="records.html">سجل الشكاوى</a></li>
+                <li><a href="management.html" class="active">الإدارة</a></li>
+                <li><a href="documents.html">المستندات</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <div class="header">
+                <h1>إدارة المشرفين والمديرين</h1>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <button class="tab-button active" onclick="switchTab('supervisors')">
+                    👥 المشرفين
+                </button>
+                <button class="tab-button" onclick="switchTab('managers')">
+                    👔 المديرين
+                </button>
+            </div>
+
+            <!-- Supervisors Tab -->
+            <div id="supervisors-tab" class="tab-content active">
+                <div id="supervisorSuccessMessage" class="success-message">
+                    تم حفظ المشرف بنجاح!
+                </div>
+
+                <h2 style="color: #667eea; margin-bottom: 20px;">➕ إضافة مشرف جديد</h2>
+
+                <form id="supervisorForm">
+                    <div class="form-group">
+                        <label for="supervisorName">اسم المشرف: *</label>
+                        <input type="text" id="supervisorName" required placeholder="أدخل اسم المشرف">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supervisorTitle">اللقب:</label>
+                        <input type="text" id="supervisorTitle" placeholder="مثال: مهندس او استاذ (اختياري)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supervisorPhone">رقم التليفون:</label>
+                        <input type="tel" id="supervisorPhone" placeholder="أدخل رقم التليفون (اختياري)">
+                        <small>مثال: 01012345678 أو +201012345678</small>
+                        <span class="error-message" id="supervisorPhoneError">الرجاء إدخال رقم هاتف صحيح</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supervisorArea">المنطقة: *</label>
+                        <input type="text" id="supervisorArea" required placeholder="أدخل المنطقة المسؤول عنها">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supervisorCity">المدينة:</label>
+                        <input type="text" id="supervisorCity" placeholder="أدخل المدينة (اختياري)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supervisorNotes">ملاحظات:</label>
+                        <textarea id="supervisorNotes" placeholder="ملاحظات إضافية (اختياري)"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-block">
+                            ✅ حفظ المشرف
+                        </button>
+                    </div>
+                </form>
+
+                <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f0f0;">
+
+                <h2 style="color: #667eea; margin-bottom: 20px;">قائمة المشرفين</h2>
+
+                <div class="form-group">
+                    <input type="text" id="supervisorSearchInput" placeholder="🔍 ابحث عن مشرف...">
+                </div>
+
+                <div id="supervisorLoading" class="loading">
+                    جاري تحميل البيانات...
+                </div>
+
+                <div id="supervisorsTable" class="table-container" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم المشرف</th>
+                                <th>اللقب</th>
+                                <th>رقم الهاتف</th>
+                                <th>المنطقة</th>
+                                <th>المدينة</th>
+                                <th>الملاحظات</th>
+                                <th>عدد الشكاوى</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supervisorsBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="supervisorNoData" style="display: none; text-align: center; padding: 40px; color: #666;">
+                    <p>لا يوجد مشرفين مسجلين حالياً</p>
+                </div>
+            </div>
+
+            <!-- Managers Tab -->
+            <div id="managers-tab" class="tab-content">
+                <div id="managerSuccessMessage" class="success-message">
+                    تم حفظ المدير بنجاح!
+                </div>
+
+                <h2 style="color: #667eea; margin-bottom: 20px;">➕ إضافة مدير جديد</h2>
+
+                <form id="managerForm">
+                    <div class="form-group">
+                        <label for="managerName">اسم المدير: *</label>
+                        <input type="text" id="managerName" required placeholder="أدخل اسم المدير">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="managerTitle">اللقب:</label>
+                        <input type="text" id="managerTitle" placeholder="مثال: مهندس او استاذ (اختياري)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="managerPhone">رقم التليفون:</label>
+                        <input type="tel" id="managerPhone" placeholder="أدخل رقم التليفون (اختياري)">
+                        <small>مثال: 01012345678 أو +201012345678</small>
+                        <span class="error-message" id="managerPhoneError">الرجاء إدخال رقم هاتف صحيح</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="managerDepartment">المنطقة: *</label>
+                        <input type="text" id="managerDepartment" required placeholder="أدخل المنطقة المسؤول عنها">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="managerCity">المدينة:</label>
+                        <input type="text" id="managerCity" placeholder="أدخل المدينة (اختياري)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="managerNotes">ملاحظات:</label>
+                        <textarea id="managerNotes" placeholder="ملاحظات إضافية (اختياري)"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-block">
+                            ✅ حفظ المدير
+                        </button>
+                    </div>
+                </form>
+
+                <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f0f0;">
+
+                <h2 style="color: #667eea; margin-bottom: 20px;">قائمة المديرين</h2>
+
+                <div class="form-group">
+                    <input type="text" id="managerSearchInput" placeholder="🔍 ابحث عن مدير...">
+                </div>
+
+                <div id="managerLoading" class="loading">
+                    جاري تحميل البيانات...
+                </div>
+
+                <div id="managersTable" class="table-container" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم المدير</th>
+                                <th>اللقب</th>
+                                <th>رقم الهاتف</th>
+                                <th>المنطقة</th>
+                                <th>المدينة</th>
+                                <th>الملاحظات</th>
+                                <th>عدد الشكاوى</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="managersBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="managerNoData" style="display: none; text-align: center; padding: 40px; color: #666;">
+                    <p>لا يوجد مديرين مسجلين حالياً</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Supervisor Modal -->
+    <div id="editSupervisorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+        <div style="background: white; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 30px; position: relative;">
+            <button onclick="closeEditSupervisorModal()" style="position: absolute; left: 20px; top: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+            <h2 style="color: #667eea; margin-bottom: 20px;">تعديل بيانات المشرف</h2>
+            <form id="editSupervisorForm">
+                <input type="hidden" id="editSupervisorId">
+                <div class="form-group">
+                    <label for="editSupervisorName">اسم المشرف: *</label>
+                    <input type="text" id="editSupervisorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorTitle">اللقب:</label>
+                    <input type="text" id="editSupervisorTitle" placeholder="مثال: مهندس او استاذ">
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorPhone">رقم التليفون:</label>
+                    <input type="tel" id="editSupervisorPhone">
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorArea">المنطقة: *</label>
+                    <input type="text" id="editSupervisorArea" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorCity">المدينة:</label>
+                    <input type="text" id="editSupervisorCity" placeholder="أدخل المدينة">
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorNotes">ملاحظات:</label>
+                    <textarea id="editSupervisorNotes"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Manager Modal -->
+    <div id="editManagerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+        <div style="background: white; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 30px; position: relative;">
+            <button onclick="closeEditManagerModal()" style="position: absolute; left: 20px; top: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+            <h2 style="color: #667eea; margin-bottom: 20px;">تعديل بيانات المدير</h2>
+            <form id="editManagerForm">
+                <input type="hidden" id="editManagerId">
+                <div class="form-group">
+                    <label for="editManagerName">اسم المدير: *</label>
+                    <input type="text" id="editManagerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editManagerTitle">اللقب:</label>
+                    <input type="text" id="editManagerTitle" placeholder="مثال: مهندس او استاذ">
+                </div>
+                <div class="form-group">
+                    <label for="editManagerPhone">رقم التليفون:</label>
+                    <input type="tel" id="editManagerPhone">
+                </div>
+                <div class="form-group">
+                    <label for="editManagerDepartment">المنطقة: *</label>
+                    <input type="text" id="editManagerDepartment" required>
+                </div>
+                <div class="form-group">
+                    <label for="editManagerCity">المدينة:</label>
+                    <input type="text" id="editManagerCity" placeholder="أدخل المدينة">
+                </div>
+                <div class="form-group">
+                    <label for="editManagerNotes">ملاحظات:</label>
+                    <textarea id="editManagerNotes"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../firebase-config.js"></script>
+    <script type="module" src="../js/management.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;">
+    <title>سجل الشكاوى - منظومة الشكاوى</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <button class="btn btn-secondary logout-btn" id="logoutBtn">تسجيل الخروج</button>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="complaints.html">تقديم شكوى</a></li>
+                <li><a href="records.html" class="active">سجل الشكاوى</a></li>
+                <li><a href="management.html">الإدارة</a></li>
+                <li><a href="documents.html">المستندات</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <div class="header">
+                <h1>سجل الشكاوى</h1>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="searchInput" placeholder="🔍 ابحث بالاسم، الهاتف، المنطقة، أو المدينة...">
+            </div>
+
+            <div class="form-group">
+                <label for="filterStatus">تصفية حسب الحالة:</label>
+                <select id="filterStatus">
+                    <option value="all">جميع الشكاوى</option>
+                    <option value="pending">قيد الانتظار</option>
+                    <option value="processing">قيد المعالجة</option>
+                    <option value="resolved">تم الحل</option>
+                </select>
+            </div>
+
+            <div id="loading" class="loading">
+                جاري تحميل البيانات...
+            </div>
+
+            <div id="complaintsTable" class="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم الشكوى</th>
+                            <th>التاريخ</th>
+                            <th>اسم العميل</th>
+                            <th>رقم الهاتف</th>
+                            <th>رقم العمارة</th>
+                            <th>المنطقة</th>
+                            <th>المدينة</th>
+                            <th>الحي</th>
+                            <th>المشرف</th>
+                            <th>نوع الشكوى</th>
+                            <th>المحتوى</th>
+                            <th>الملاحظات</th>
+                            <th>الحالة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noData" style="display: none; text-align: center; padding: 40px; color: #666;">
+                <p>لا توجد شكاوى مسجلة حالياً</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for viewing complaint details -->
+    <div id="detailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+        <div style="background: white; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 30px; position: relative;">
+            <button onclick="closeModal()" style="position: absolute; left: 20px; top: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script type="module" src="../js/records.js"></script>
+</body>
+</html>

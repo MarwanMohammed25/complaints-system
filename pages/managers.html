@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;">    <title>المديرين - منظومة الشكاوى</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <button class="btn btn-secondary logout-btn" id="logoutBtn">تسجيل الخروج</button>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="complaints.html">تقديم شكوى</a></li>
+                <li><a href="records.html">سجل الشكاوى</a></li>
+                <li><a href="supervisors.html">المشرفين</a></li>
+                <li><a href="managers.html" class="active">المديرين</a></li>
+                <li><a href="documents.html">المستندات</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <div class="header">
+                <h1>إدارة المديرين</h1>
+            </div>
+
+            <div id="successMessage" class="success-message">
+                تم حفظ المدير بنجاح!
+            </div>
+
+            <h2 style="color: #667eea; margin-bottom: 20px;">➕ إضافة مدير جديد</h2>
+
+            <form id="managerForm">
+                <div class="form-group">
+                    <label for="managerName">اسم المدير: *</label>
+                    <input type="text" id="managerName" required placeholder="أدخل اسم المدير">
+                </div>
+
+                <div class="form-group">
+                    <label for="managerPhone">رقم التليفون:</label>
+                    <input type="tel" id="managerPhone" placeholder="أدخل رقم التليفون (اختياري)">
+                    <small>مثال: 01012345678 أو +201012345678</small>
+                    <span class="error-message" id="phoneError">الرجاء إدخال رقم هاتف صحيح</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="managerDepartment">القسم: *</label>
+                    <input type="text" id="managerDepartment" required placeholder="أدخل القسم المسؤول عنه">
+                </div>
+
+                <div class="form-group">
+                    <label for="managerNotes">ملاحظات:</label>
+                    <textarea id="managerNotes" placeholder="ملاحظات إضافية (اختياري)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block">
+                        ✅ حفظ المدير
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="header">
+                <h2>قائمة المديرين</h2>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="searchInput" placeholder="🔍 ابحث عن مدير...">
+            </div>
+
+            <div id="loading" class="loading">
+                جاري تحميل البيانات...
+            </div>
+
+            <div id="managersTable" class="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المدير</th>
+                            <th>رقم الهاتف</th>
+                            <th>القسم</th>
+                            <th>الملاحظات</th>
+                            <th>عدد الشكاوى</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="managersBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noData" style="display: none; text-align: center; padding: 40px; color: #666;">
+                <p>لا يوجد مديرين مسجلين حالياً</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+        <div style="background: white; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 30px; position: relative;">
+            <button onclick="closeEditModal()" style="position: absolute; left: 20px; top: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+            <h2 style="color: #667eea; margin-bottom: 20px;">تعديل بيانات المدير</h2>
+            <form id="editForm">
+                <input type="hidden" id="editManagerId">
+                <div class="form-group">
+                    <label for="editManagerName">اسم المدير: *</label>
+                    <input type="text" id="editManagerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editManagerPhone">رقم التليفون:</label>
+                    <input type="tel" id="editManagerPhone">
+                </div>
+                <div class="form-group">
+                    <label for="editManagerDepartment">القسم: *</label>
+                    <input type="text" id="editManagerDepartment" required>
+                </div>
+                <div class="form-group">
+                    <label for="editManagerNotes">ملاحظات:</label>
+                    <textarea id="editManagerNotes"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../firebase-config.js"></script>
+    <script type="module" src="../js/managers.js"></script>
+</body>
+</html>

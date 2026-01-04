@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;">
+    <title>المشرفين - منظومة الشكاوى</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <button class="btn btn-secondary logout-btn" id="logoutBtn">تسجيل الخروج</button>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="complaints.html">تقديم شكوى</a></li>
+                <li><a href="records.html">سجل الشكاوى</a></li>
+                <li><a href="supervisors.html" class="active">المشرفين</a></li>
+                <li><a href="managers.html">المديرين</a></li>
+                <li><a href="documents.html">المستندات</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <div class="header">
+                <h1>إدارة المشرفين</h1>
+            </div>
+
+            <div id="successMessage" class="success-message">
+                تم حفظ المشرف بنجاح!
+            </div>
+
+            <h2 style="color: #667eea; margin-bottom: 20px;">➕ إضافة مشرف جديد</h2>
+
+            <form id="supervisorForm">
+                <div class="form-group">
+                    <label for="supervisorName">اسم المشرف: *</label>
+                    <input type="text" id="supervisorName" required placeholder="أدخل اسم المشرف">
+                </div>
+
+                <div class="form-group">
+                    <label for="supervisorPhone">رقم التليفون:</label>
+                    <input type="tel" id="supervisorPhone" placeholder="أدخل رقم التليفون (اختياري)">
+                    <small>مثال: 01012345678 أو +201012345678</small>
+                    <span class="error-message" id="phoneError">الرجاء إدخال رقم هاتف صحيح</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="supervisorArea">المنطقة: *</label>
+                    <input type="text" id="supervisorArea" required placeholder="أدخل المنطقة المسؤول عنها">
+                </div>
+
+                <div class="form-group">
+                    <label for="supervisorNotes">ملاحظات:</label>
+                    <textarea id="supervisorNotes" placeholder="ملاحظات إضافية (اختياري)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block">
+                        ✅ حفظ المشرف
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="header">
+                <h2>قائمة المشرفين</h2>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="searchInput" placeholder="🔍 ابحث عن مشرف...">
+            </div>
+
+            <div id="loading" class="loading">
+                جاري تحميل البيانات...
+            </div>
+
+            <div id="supervisorsTable" class="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المشرف</th>
+                            <th>رقم الهاتف</th>
+                            <th>المنطقة</th>
+                            <th>الملاحظات</th>
+                            <th>عدد الشكاوى</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supervisorsBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noData" style="display: none; text-align: center; padding: 40px; color: #666;">
+                <p>لا يوجد مشرفين مسجلين حالياً</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+        <div style="background: white; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 30px; position: relative;">
+            <button onclick="closeEditModal()" style="position: absolute; left: 20px; top: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+            <h2 style="color: #667eea; margin-bottom: 20px;">تعديل بيانات المشرف</h2>
+            <form id="editForm">
+                <input type="hidden" id="editSupervisorId">
+                <div class="form-group">
+                    <label for="editSupervisorName">اسم المشرف: *</label>
+                    <input type="text" id="editSupervisorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorPhone">رقم التليفون:</label>
+                    <input type="tel" id="editSupervisorPhone">
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorArea">المنطقة: *</label>
+                    <input type="text" id="editSupervisorArea" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSupervisorNotes">ملاحظات:</label>
+                    <textarea id="editSupervisorNotes"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../firebase-config.js"></script>
+    <script type="module" src="../js/supervisors.js"></script>
+</body>
+</html>

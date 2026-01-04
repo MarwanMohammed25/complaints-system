@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;">
+    <title>تقديم شكوى - منظومة الشكاوى</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <button class="btn btn-secondary logout-btn" id="logoutBtn">تسجيل الخروج</button>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="complaints.html" class="active">تقديم شكوى</a></li>
+                <li><a href="records.html">سجل الشكاوى</a></li>
+                <li><a href="management.html">الإدارة</a></li>
+                <li><a href="documents.html">المستندات</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <div class="header">
+                <h1>تقديم شكوى جديدة</h1>
+            </div>
+
+            <div id="successMessage" class="success-message">
+                تم حفظ الشكوى بنجاح!
+            </div>
+
+            <form id="complaintForm">
+                <div class="form-group">
+                    <label for="customerName">اسم العميل: *</label>
+                    <input type="text" id="customerName" required maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">رقم التليفون: *</label>
+                    <input type="tel" id="phoneNumber" required pattern="^(\+?2)?01[0-2,5]{1}[0-9]{8}$" maxlength="14">
+                    <small>مثال: 01012345678 أو +201012345678</small>
+                    <span class="error-message" id="phoneError">الرجاء إدخال رقم هاتف صحيح</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="buildingNumber">رقم العمارة: *</label>
+                    <input type="text" id="buildingNumber" required maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <label for="area">المنطقة: *</label>
+                    <input type="text" id="area" required maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="city">المدينة:</label>
+                    <input type="text" id="city" placeholder="أدخل اسم المدينة (اختياري)" maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="district">الحي:</label>
+                    <input type="text" id="district" placeholder="أدخل اسم الحي (اختياري)" maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="supervisor">اسم المشرف:</label>
+                    <select id="supervisor">
+                        <option value="">اختر المشرف</option>
+                    </select>
+                    <button type="button" class="btn btn-secondary add-supervisor-btn" id="addSupervisorBtn">
+                        ➕ إضافة مشرف جديد
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="manager">اسم المدير:</label>
+                    <select id="manager">
+                        <option value="">اختر المدير</option>
+                    </select>
+                    <button type="button" class="btn btn-secondary add-supervisor-btn" id="addManagerBtn">
+                        ➕ إضافة مدير جديد
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="complaintType">نوع الشكوى: *</label>
+                    <input type="text" id="complaintType" required placeholder="مثال: الصرف الصحي، الكهرباء، النظافة...">
+                </div>
+
+                <div class="form-group">
+                    <label for="complaintContent">محتوى الشكوى: *</label>
+                    <textarea id="complaintContent" required placeholder="اكتب تفاصيل الشكوى هنا..." maxlength="1000"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">ملاحظات:</label>
+                    <textarea id="notes" placeholder="ملاحظات إضافية (اختياري)" maxlength="500"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        حفظ الشكوى
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../firebase-config.js"></script>
+    <script type="module" src="../js/complaints.js"></script>
+</body>
+</html>

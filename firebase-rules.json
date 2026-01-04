@@ -1,0 +1,33 @@
+{
+  "rules": {
+    "appVersion": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "complaints": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$complaintId": {
+        ".validate": "newData.hasChildren(['customerName', 'phoneNumber', 'buildingNumber', 'area', 'supervisor', 'complaintType', 'complaintContent', 'status', 'createdAt'])"
+      }
+    },
+    "supervisors": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$supervisorId": {
+        ".validate": "newData.hasChildren(['name', 'phone', 'area', 'createdAt'])"
+      }
+    },
+    "managers": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$managerId": {
+        ".validate": "newData.hasChildren(['name', 'phone', 'area', 'createdAt'])"
+      }
+    },
+    "documents": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}

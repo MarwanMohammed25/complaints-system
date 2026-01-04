@@ -1,0 +1,33 @@
+{
+  "name": "complaints-system",
+  "version": "2.1.0",
+  "description": "منظومة الشكاوى والمتابعة - التعمير لإدارة المرافق",
+  "main": "main.js",
+  "scripts": {
+    "start": "npx http-server -p 8080",
+    "electron": "electron .",
+    "build": "electron-packager . \"منظومة الشكاوى\" --platform=win32 --arch=x64 --icon=favicon.ico --out=dist --overwrite",
+    "installer": "iscc installer-setup.iss"
+  },
+  "dependencies": {
+    "@electron/remote": "^2.1.2",
+    "electron-updater": "^6.1.7",
+    "firebase": "^10.7.1"
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.0.0",
+    "electron": "^27.0.0",
+    "http-server": "^14.1.1"
+  },
+  "build": {
+    "appId": "com.taamir.complaints-system",
+    "productName": "منظومة الشكاوى",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "your-github-username",
+        "repo": "complaints-system"
+      }
+    ]
+  }
+}

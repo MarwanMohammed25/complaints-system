@@ -125,7 +125,7 @@ const managerForm = document.getElementById('managerForm');
 const phoneError = document.getElementById('phoneError');
 const successMessage = document.getElementById('successMessage');
 
-managerForm.addEventListener('submit', async (e) => {
+addTrackedListener(managerForm, 'submit', async (e) => {
     e.preventDefault();
     
     // Hide messages
@@ -193,7 +193,7 @@ managerForm.addEventListener('submit', async (e) => {
 });
 
 // Phone number validation on input
-document.getElementById('managerPhone').addEventListener('input', (e) => {
+addTrackedListener(document.getElementById('managerPhone'), 'input', (e) => {
     const phoneValue = e.target.value.trim();
     
     // If empty, hide error
@@ -214,7 +214,7 @@ document.getElementById('managerPhone').addEventListener('input', (e) => {
 });
 
 // Search functionality
-document.getElementById('searchInput').addEventListener('input', (e) => {
+addTrackedListener(document.getElementById('searchInput'), 'input', (e) => {
     displayManagers(managersData, e.target.value);
 });
 
@@ -238,7 +238,7 @@ window.closeEditModal = function() {
 };
 
 // Edit form submission
-document.getElementById('editForm').addEventListener('submit', async (e) => {
+addTrackedListener(document.getElementById('editForm'), 'submit', async (e) => {
     e.preventDefault();
 
     const managerId = document.getElementById('editManagerId').value;
@@ -302,7 +302,7 @@ window.deleteManager = async function(managerId, complaintCount) {
 };
 
 // Close modal on outside click
-document.getElementById('editModal').addEventListener('click', (e) => {
+addTrackedListener(document.getElementById('editModal'), 'click', (e) => {
     if (e.target.id === 'editModal') {
         closeEditModal();
     }

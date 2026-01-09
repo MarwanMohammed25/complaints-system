@@ -2,6 +2,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getDatabase } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { addTrackedListener } from './cleanup.js';
 
 // Initialize Firebase
 const app = initializeApp(window.firebaseConfig);
@@ -26,7 +27,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Login form submission
-loginForm.addEventListener('submit', async (e) => {
+addTrackedListener(loginForm, 'submit', async (e) => {
     e.preventDefault();
     
     // Clear previous errors
@@ -111,7 +112,7 @@ loginForm.addEventListener('submit', async (e) => {
 });
 
 // Forgot password
-forgotPasswordLink.addEventListener('click', async (e) => {
+addTrackedListener(forgotPasswordLink, 'click', async (e) => {
     e.preventDefault();
     
     const email = emailInput.value.trim();
@@ -132,7 +133,7 @@ forgotPasswordLink.addEventListener('click', async (e) => {
 });
 
 // Create new account
-createAccountLink.addEventListener('click', async (e) => {
+addTrackedListener(createAccountLink, 'click', async (e) => {
     e.preventDefault();
     
     emailError.style.display = 'none';

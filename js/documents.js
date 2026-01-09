@@ -1,6 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getDatabase, ref, get, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { addTrackedListener } from './cleanup.js';
 
 console.log('📄 documents.js loaded successfully');
 
@@ -67,7 +68,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Logout functionality
-document.getElementById('logoutBtn').addEventListener('click', async () => {
+addTrackedListener(document.getElementById('logoutBtn'), 'click', async () => {
     try {
         await signOut(auth);
         window.location.href = '../index.html';
@@ -353,7 +354,7 @@ function getFileCategory(type) {
 }
 
 // Update statistics
-function updateStats() {
+function updateStats(complaintId = null) {
     let documents = getDocuments();
     
     // التأكد من أن documents هو array
@@ -363,6 +364,13 @@ function updateStats() {
         } else {
             documents = [];
         }
+    }
+    
+    // ✅ فلترة حسب الشكوى المختارة فقط
+    if (complaintId) {
+        const complaint = complaintsData[complaintId];
+        const complaintRefNumber = complaint?.complaintId || '';
+        documents = documents.filter(doc => doc.complaintId === complaintId || doc.complaintRef === complaintRefNumber);
     }
     
     const totalSize = documents.reduce((sum, doc) => sum + doc.size, 0);
@@ -408,8 +416,8 @@ function displayDocumentsForComplaint(complaintId, filter = 'all', searchTerm = 
                 <p>قم باختيار شكوى من القائمة أعلاه</p>
             </div>
         `;
-        // ✅ عرض الإحصائيات لكل الصور الموجودة
-        updateStats();
+        // ✅ عرض إحصائيات فارغة
+        updateStats(null);
         return;
     }
     
@@ -444,8 +452,8 @@ function displayDocumentsForComplaint(complaintId, filter = 'all', searchTerm = 
                 <p>${searchTerm ? 'جرب كلمات بحث أخرى' : 'قم برفع صور للشكوى: ' + complaintRefNumber}</p>
             </div>
         `;
-        // ✅ عرض الإحصائيات لكل الصور (حتى لو لا توجد للشكوى المختارة)
-        updateStats();
+        // ✅ عرض إحصائيات الشكوى المختارة فقط
+        updateStats(complaintId);
         return;
     }
     
@@ -476,7 +484,7 @@ function displayDocumentsForComplaint(complaintId, filter = 'all', searchTerm = 
     `;
     }).join('');
     
-    updateStats();
+    updateStats(complaintId);
 }
 
 // Display documents
@@ -589,7 +597,8 @@ function loadDocuments() {
         try {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed) && parsed.length > 0) {
-                displayDocuments();
+                const selectedComplaintId = document.getElementById('complaintRef')?.value;
+                displayDocumentsForComplaint(selectedComplaintId || null);
                 console.log('Documents loaded from localStorage:', parsed.length);
             }
         } catch (error) {
@@ -605,27 +614,27 @@ function loadDocuments() {
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 
-uploadArea.addEventListener('click', () => {
+addTrackedListener(uploadArea, 'click', () => {
     fileInput.click();
 });
 
-uploadArea.addEventListener('dragover', (e) => {
+addTrackedListener(uploadArea, 'dragover', (e) => {
     e.preventDefault();
     uploadArea.classList.add('dragover');
 });
 
-uploadArea.addEventListener('dragleave', () => {
+addTrackedListener(uploadArea, 'dragleave', () => {
     uploadArea.classList.remove('dragover');
 });
 
-uploadArea.addEventListener('drop', (e) => {
+addTrackedListener(uploadArea, 'drop', (e) => {
     e.preventDefault();
     uploadArea.classList.remove('dragover');
     const files = e.dataTransfer.files;
     handleFiles(files);
 });
 
-fileInput.addEventListener('change', (e) => {
+addTrackedListener(fileInput, 'change', (e) => {
     const files = e.target.files;
     handleFiles(files);
 });
@@ -669,7 +678,7 @@ async function handleFiles(files) {
 
             documents.push(document);
             saveDocuments(documents);
-            displayDocuments();
+            displayDocumentsForComplaint(complaintId || null);
         };
         reader.readAsDataURL(file);
     }
@@ -761,7 +770,8 @@ window.deleteDocument = function(id) {
         // تصفية المستند المحذوف
         const filtered = documents.filter(d => d.id !== id);
         saveDocuments(filtered);
-        displayDocuments();
+        const selectedComplaintId = document.getElementById('complaintRef')?.value;
+        displayDocumentsForComplaint(selectedComplaintId || null);
     } catch (error) {
         console.error('Error deleting document:', error);
         alert('حدث خطأ أثناء حذف المستند');
@@ -899,7 +909,8 @@ window.pasteDocument = async function() {
         // Add to documents
         documents.push(newDoc);
         saveDocuments(documents);
-        displayDocuments();
+        const selectedComplaintId = document.getElementById('complaintRef')?.value;
+        displayDocumentsForComplaint(selectedComplaintId || null);
         
         // Show success message
         let message = '✅ تم لصق المستند بنجاح!\n\n';
@@ -934,7 +945,7 @@ window.pasteDocuments = function() {
     // Show instruction
     alert('بعد الضغط على "موافق"، اضغط Ctrl+V للصق المستندات');
     
-    textarea.addEventListener('paste', function(e) {
+    addTrackedListener(textarea, 'paste', function(e) {
         e.preventDefault();
         const clipboardText = e.clipboardData.getData('text');
         document.body.removeChild(textarea);
@@ -995,7 +1006,8 @@ window.pasteDocuments = function() {
             
             // Save all documents
             saveDocuments(currentDocuments);
-            displayDocuments();
+            const selectedComplaintId = document.getElementById('complaintRef')?.value;
+            displayDocumentsForComplaint(selectedComplaintId || null);
             
             // Show success message
             let message = '✅ تم لصق كل المستندات بنجاح!\n\n';
@@ -1018,7 +1030,7 @@ window.pasteDocuments = function() {
 
 // Filter buttons
 document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    addTrackedListener(btn, 'click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const filter = btn.getAttribute('data-filter');
@@ -1030,7 +1042,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 // Search functionality
-document.getElementById('searchInput').addEventListener('input', (e) => {
+addTrackedListener(document.getElementById('searchInput'), 'input', (e) => {
     const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-filter') || 'all';
     
     // ✅ إعادة عرض صور الشكوى المختارة مع البحث والفلتر
@@ -1650,7 +1662,7 @@ function generateImagesPages(images, complaintNumber, imageTypeTitle) {
 }
 
 // Complaint select change handler
-document.getElementById('complaintRef').addEventListener('change', (e) => {
+addTrackedListener(document.getElementById('complaintRef'), 'change', (e) => {
     const uploadArea = document.getElementById('uploadArea');
     const selectedComplaintId = e.target.value;
     

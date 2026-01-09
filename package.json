@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npx http-server -p 8080",
     "electron": "electron .",
-    "build": "electron-packager . \"منظومة الشكاوى\" --platform=win32 --arch=x64 --icon=favicon.ico --out=dist --overwrite",
+    "build": "electron-packager . complaints-system --platform=win32 --arch=x64 --icon=icon.ico --out=dist --overwrite --ignore=\"dist|node_modules/.cache\"",
     "installer": "iscc installer-setup.iss"
   },
   "dependencies": {

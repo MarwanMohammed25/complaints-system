@@ -1,6 +1,7 @@
 ﻿import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getDatabase, ref, get, update, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { addTrackedListener } from './cleanup.js';
 
 const app = initializeApp(window.firebaseConfig);
 const auth = getAuth(app);
@@ -19,7 +20,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Logout functionality
-document.getElementById('logoutBtn').addEventListener('click', async () => {
+addTrackedListener(document.getElementById('logoutBtn'), 'click', async () => {
     try {
         await signOut(auth);
         window.location.href = '../index.html';
@@ -69,7 +70,7 @@ async function loadData() {
 }
 
 // Get linked documents count for a complaint
-function getLinkedDocuments(complaintId) {
+function getLinkedDocuments(complaintId, complaintRef = null) {
     const STORAGE_KEY = 'complaints_documents';
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return 0;
@@ -85,11 +86,15 @@ function getLinkedDocuments(complaintId) {
         }
     }
     
-    return documents.filter(doc => doc.complaintId === complaintId).length;
+    // البحث باستخدام complaintId أو complaintRef
+    return documents.filter(doc => 
+        doc.complaintId === complaintId || 
+        (complaintRef && doc.complaintRef === complaintRef)
+    ).length;
 }
 
 // Get linked documents data for a complaint
-function getLinkedDocumentsData(complaintId) {
+function getLinkedDocumentsData(complaintId, complaintRef = null) {
     const STORAGE_KEY = 'complaints_documents';
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
@@ -105,7 +110,11 @@ function getLinkedDocumentsData(complaintId) {
         }
     }
     
-    return documents.filter(doc => doc.complaintId === complaintId);
+    // البحث باستخدام complaintId أو complaintRef
+    return documents.filter(doc => 
+        doc.complaintId === complaintId || 
+        (complaintRef && doc.complaintRef === complaintRef)
+    );
 }
 
 // View linked document
@@ -283,8 +292,8 @@ function displayComplaints(complaints, filter = 'all', searchTerm = '') {
         const date = new Date(complaint.createdAt).toLocaleDateString('ar-EG');
         const complaintId = complaint.complaintId || '-';
         
-        // Count linked documents
-        const linkedDocs = getLinkedDocuments(complaint.id);
+        // Count linked documents - البحث باستخدام id و complaintId معاً
+        const linkedDocs = getLinkedDocuments(complaint.id, complaint.complaintId);
         
         let statusText = '';
         let statusClass = '';
@@ -345,8 +354,8 @@ window.showDetails = function(complaintId) {
     const date = new Date(complaint.createdAt).toLocaleString('ar-EG');
     const complaintNumber = complaint.complaintId || 'غير محدد';
     
-    // Get linked documents from localStorage
-    const linkedDocs = getLinkedDocumentsData(complaintId);
+    // Get linked documents from localStorage - البحث باستخدام id و complaintId معاً
+    const linkedDocs = getLinkedDocumentsData(complaintId, complaint.complaintId);
 
     const modalContent = document.getElementById('modalContent');
     modalContent.innerHTML = `
@@ -1490,7 +1499,7 @@ window.updateStatus = async function(complaintId, newStatus) {
             </form>
         `;
         
-        document.getElementById('closureForm').addEventListener('submit', async (e) => {
+        addTrackedListener(document.getElementById('closureForm'), 'submit', async (e) => {
             e.preventDefault();
             const closureComment = document.getElementById('closureComment').value.trim();
             
@@ -1636,7 +1645,7 @@ window.editComplaint = function(complaintId) {
         </form>
     `;
 
-    document.getElementById('editForm').addEventListener('submit', async (e) => {
+    addTrackedListener(document.getElementById('editForm'), 'submit', async (e) => {
         e.preventDefault();
         await saveComplaintEdit(complaintId);
     });
@@ -1700,19 +1709,19 @@ window.deleteComplaint = async function(complaintId) {
 };
 
 // Filter by status
-document.getElementById('filterStatus').addEventListener('change', (e) => {
+addTrackedListener(document.getElementById('filterStatus'), 'change', (e) => {
     const searchTerm = document.getElementById('searchInput').value;
     displayComplaints(complaintsData, e.target.value, searchTerm);
 });
 
 // Search functionality
-document.getElementById('searchInput').addEventListener('input', (e) => {
+addTrackedListener(document.getElementById('searchInput'), 'input', (e) => {
     const filter = document.getElementById('filterStatus').value;
     displayComplaints(complaintsData, filter, e.target.value);
 });
 
 // Close modal on outside click
-document.getElementById('detailsModal').addEventListener('click', (e) => {
+addTrackedListener(document.getElementById('detailsModal'), 'click', (e) => {
     if (e.target.id === 'detailsModal') {
         closeModal();
     }

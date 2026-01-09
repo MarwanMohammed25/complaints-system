@@ -214,7 +214,7 @@ addTrackedListener(document.getElementById('supervisorPhone'), 'input', (e) => {
 });
 
 // Search functionality
-document.getElementById('searchInput').addEventListener('input', (e) => {
+addTrackedListener(document.getElementById('searchInput'), 'input', (e) => {
     displaySupervisors(supervisorsData, e.target.value);
 });
 
@@ -238,7 +238,7 @@ window.closeEditModal = function() {
 };
 
 // Edit form submission
-document.getElementById('editForm').addEventListener('submit', async (e) => {
+addTrackedListener(document.getElementById('editForm'), 'submit', async (e) => {
     e.preventDefault();
 
     const supervisorId = document.getElementById('editSupervisorId').value;
@@ -302,7 +302,7 @@ window.deleteSupervisor = async function(supervisorId, complaintCount) {
 };
 
 // Close modal on outside click
-document.getElementById('editModal').addEventListener('click', (e) => {
+addTrackedListener(document.getElementById('editModal'), 'click', (e) => {
     if (e.target.id === 'editModal') {
         closeEditModal();
     }

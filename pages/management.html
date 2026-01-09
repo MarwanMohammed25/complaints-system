@@ -7,6 +7,7 @@
     <title>الإدارة - منظومة الشكاوى</title>
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <link rel="stylesheet" href="../css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .tabs-container {
             display: flex;
@@ -153,6 +154,107 @@
                 font-size: 11px;
             }
         }
+
+        /* Report Styles */
+        .supervisor-section {
+            background: #fff3e0;
+            border-right: 4px solid #ff9800;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .supervisor-section:hover {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            transform: translateX(-3px);
+        }
+        
+        .supervisor-name {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #e65100;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .complaint-item {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-right: 3px solid #ff5722;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
+        }
+        
+        .complaint-item:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transform: translateX(-2px);
+        }
+        
+        .complaint-item.pending {
+            border-right-color: #ff9800;
+            background: #fff8e1;
+        }
+        
+        .complaint-item.processing {
+            border-right-color: #2196f3;
+            background: #e3f2fd;
+        }
+        
+        .repeated-section {
+            background: #ffebee;
+            border-right: 4px solid #f44336;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .repeated-section:hover {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            transform: translateX(-3px);
+        }
+        
+        .customer-info {
+            font-weight: 600;
+            color: #c62828;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ffcdd2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .repeated-complaint {
+            background: white;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 6px;
+            font-size: 0.9em;
+            border-right: 2px solid #ffcdd2;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        /* Export Button Hover Effect */
+        #exportReportBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+        }
+        
+        #exportReportBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -180,6 +282,9 @@
                 </button>
                 <button class="tab-button" onclick="switchTab('managers')">
                     👔 المديرين
+                </button>
+                <button class="tab-button" onclick="switchTab('report')">
+                    ⚠️ التقرير والتحذيرات
                 </button>
             </div>
 
@@ -427,6 +532,69 @@
                 </div>
             </form>
         </div>
+    </div>
+
+    <!-- Report Tab -->
+    <div id="report-tab" class="tab-content">
+        <!-- Report Header with Logo -->
+        <div id="reportHeader" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; margin-bottom: 25px; text-align: center; color: white; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+            <div style="font-size: 48px; margin-bottom: 10px;">📋</div>
+            <h1 style="margin: 0; font-size: 32px; font-weight: bold;">منظومة إدارة الشكاوى</h1>
+            <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.95;">تقرير الشكاوى والتحذيرات</p>
+        </div>
+        
+        <h2 style="color: #667eea; margin-bottom: 20px;">📊 إحصائيات التقرير</h2>
+        
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 0.9em; opacity: 0.9;">شكاوى غير محلولة</div>
+                <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;" id="unresolvedCount">0</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 0.9em; opacity: 0.9;">عملاء متكررين</div>
+                <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;" id="repeatedCustomers">0</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 0.9em; opacity: 0.9;">إجمالي التحذيرات</div>
+                <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;" id="totalWarnings">0</div>
+            </div>
+        </div>
+
+        <div id="reportLoading" class="loading">جاري تحميل البيانات...</div>
+
+        <div id="reportContent" style="display: none;">
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f0f0;">
+            
+            <!-- Unresolved Complaints -->
+            <h2 style="color: #667eea; margin-bottom: 20px;">⚠️ الشكاوى غير المحلولة حسب المشرف</h2>
+            <div style="background: white; border-radius: 10px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #333;">📊 تصنيف حسب المشرف</div>
+                    <span class="complaint-badge" style="background: #ff5722;" id="supervisorWarningCount">0</span>
+                </div>
+                <div id="supervisorWarnings"></div>
+            </div>
+
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f0f0;">
+            
+            <!-- Repeated Complaints -->
+            <h2 style="color: #667eea; margin-bottom: 20px;">🔄 الشكاوى المتكررة من نفس العملاء</h2>
+            <div style="background: white; border-radius: 10px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #333;">🔄 العملاء المتكررين</div>
+                    <span class="complaint-badge" style="background: #ff5722;" id="repeatedWarningCount">0</span>
+                </div>
+                <div id="repeatedWarnings"></div>
+            </div>
+        </div>
+
+        <div id="reportNoData" style="display: none; text-align: center; padding: 40px; color: #333;">
+            <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">✅ لا توجد تحذيرات - كل الشكاوى محلولة!</p>
+            <p style="font-size: 0.9em; color: #666;">قد يوجد شكاوى لم يتم حلها ولكن لم تتم قراءتها بعد</p>
+        </div>
+    </div>
+
+    </div>
     </div>
 
     <script src="../firebase-config.js"></script>
